@@ -1,28 +1,92 @@
 package tinovation.org.vycinity;
 
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 
 // rahul test 1 12:40PM
 public class MainActivity extends ActionBarActivity {
+
+    private ViewPager mViewPager;
+    private TabAdapter mTapAdapter;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new PlaceholderFragment())
-                    .commit();
+
+        // set up view pager and fragment adapter
+        mViewPager = (ViewPager) this.findViewById(R.id.swiper);
+        mTapAdapter = new TabAdapter(this.getSupportFragmentManager());
+        mViewPager.setAdapter(mTapAdapter);
+
+        //set up action bar tabs
+        final ActionBar actionBar = this.getSupportActionBar();
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+
+        // Create a tab listener that is called when the user changes tabs.
+        ActionBar.TabListener tabListener = new ActionBar.TabListener() {
+            public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+                // show the given tab
+                mViewPager.setCurrentItem(tab.getPosition());
+            }
+
+            public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+                // hide the given tab
+            }
+
+            public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+                // probably ignore this event
+            }
+        };
+
+        // Add 3 tabs, specifying the tab's text and TabListener
+        for (int i = 0; i < TabAdapter.TAB_COUNT; i++) {
+            actionBar.addTab(
+                    actionBar.newTab()
+                            .setText("Tab " + (i + 1))
+                            .setTabListener(tabListener));
         }
+
+        mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                getSupportActionBar().setSelectedNavigationItem(position);
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+
+        });
+
+
+
+
+//        if (savedInstanceState == null) {
+//            getSupportFragmentManager().beginTransaction()
+//                    .add(R.id.container, new PlaceholderFragment())
+//                    .commit();
+//        }
     }
 
 
@@ -61,6 +125,25 @@ public class MainActivity extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_main, container, false);
             return rootView;
+        }
+    }
+
+    public class TabAdapter extends FragmentPagerAdapter{
+
+        public static final int TAB_COUNT = 2;
+
+        public TabAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return new PlaceholderFragment();
+        }
+
+        @Override
+        public int getCount() {
+            return TAB_COUNT;
         }
     }
 }
