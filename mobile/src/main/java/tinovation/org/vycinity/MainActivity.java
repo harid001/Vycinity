@@ -12,10 +12,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 // rahul test 1 12:40PM
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity implements StreamFragment.OnLocationChangedListener {
 
     private ViewPager mViewPager;
     private TabAdapter mTapAdapter;
+    public static String myLocation = "T-Pumps";
 
 
     @Override
@@ -101,6 +102,11 @@ public class MainActivity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onLocationChanged(String newLocation) {
+        myLocation = newLocation;
+    }
+
     public class TabAdapter extends FragmentPagerAdapter{
 
         public static final int TAB_COUNT = 2;
@@ -112,7 +118,11 @@ public class MainActivity extends ActionBarActivity {
         @Override
         public Fragment getItem(int position) {
             if(position == 0){
-                return new PlaceFragment();
+                PlaceFragment pf = new PlaceFragment();
+                Bundle bundle = new Bundle();
+                bundle.putString("location",MainActivity.myLocation);
+                pf.setArguments(bundle);
+                return pf;
             }
             else{
                 return new StreamFragment();
@@ -124,4 +134,5 @@ public class MainActivity extends ActionBarActivity {
             return TAB_COUNT;
         }
     }
+
 }

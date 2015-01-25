@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="sexy_orange">#ECB32E</color>
+    <color name="sex_red">#990000</color>
+    <color name="bitch_red">#CC0000</color>
+    <color name="period_red">#424242</color>
+
 
 </resources>

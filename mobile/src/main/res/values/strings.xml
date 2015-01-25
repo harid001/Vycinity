@@ -7,5 +7,7 @@
     <string name="data_description">Deal</string>
     <string name="data_content">Get 15% off all shoes.</string>
     <string name="current_location">Currently Located At</string>
+    <string name="action_filter">Filter</string>
+    <string name="title_activity_information">InformationActivity</string>
 
 </resources>
