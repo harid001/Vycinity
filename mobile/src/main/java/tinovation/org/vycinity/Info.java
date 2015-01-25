@@ -3,6 +3,7 @@ package tinovation.org.vycinity;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -32,7 +33,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 
-public class InformationActivity extends ActionBarActivity {
+public class Info extends ActionBarActivity {
 
     CustomListAdapter mInformationAdapter;
 
@@ -93,11 +94,6 @@ public class InformationActivity extends ActionBarActivity {
         }
     }
 
-    static class ViewHolder{
-        TextView title;
-        TextView description;
-    }
-
     public class CustomListAdapter extends ArrayAdapter {
 
         public CustomListAdapter(Context context, int resource) {
@@ -107,27 +103,30 @@ public class InformationActivity extends ActionBarActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
-            ViewHolder holder = null;
             LayoutInflater inflater = getLayoutInflater();
             View vi = convertView;
+            Typeface regular = Typeface.createFromAsset(getAssets(),
+                    "RobotoCondensed-Regular.ttf");
+            Typeface italic = Typeface.createFromAsset(getAssets(),
+                    "RobotoCondensed-Italic.ttf");
             if (vi == null) {
                 vi = inflater.inflate(R.layout.deal_item,null);
                 Deal deal = (Deal)getItem(position);
-                //holder = new ViewHolder();
                 TextView title = (TextView) vi.findViewById(R.id.deal_title);
+                title.setTypeface(regular);
                 title.setText(deal.getTitle());
                 TextView descrip = (TextView) vi.findViewById(R.id.deal_description);
+                descrip.setTypeface(italic);
                 descrip.setText(deal.getDescription());
-//                holder.title = title;
-//                holder.description = descrip;
-//                vi.setTag(holder);
 
             }
             //holder = (ViewHolder)vi.getTag();
             Deal deal = (Deal)getItem(position);
             TextView title = (TextView) vi.findViewById(R.id.deal_title);
+            title.setTypeface(regular);
             title.setText(deal.getTitle());
             TextView descrip = (TextView) vi.findViewById(R.id.deal_description);
+            descrip.setTypeface(italic);
             descrip.setText(deal.getDescription());
 //            holder.title = (TextView) vi.findViewById(R.id.deal_title);
 //            holder.description = (TextView) vi.findViewById(R.id.deal_description);
@@ -173,7 +172,7 @@ public class InformationActivity extends ActionBarActivity {
             // send wear notification
             int notificationId = 001;
             // Build intent for notification content
-            Intent viewIntent = new Intent(getApplicationContext(), InformationActivity.class);
+            Intent viewIntent = new Intent(getApplicationContext(), Info.class);
             viewIntent.putExtra("deals", new Bundle());
             PendingIntent viewPendingIntent =
                     PendingIntent.getActivity(getApplicationContext(), 0, viewIntent, 0);

@@ -97,7 +97,7 @@ public class StreamFragment extends Fragment implements
         v.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(),InformationActivity.class);
+                Intent intent = new Intent(getActivity(),Info.class);
 
                 TextView tv = (TextView)(view.findViewById(R.id.place_title));
                 Log.v("test", (String) tv.getText());
@@ -152,9 +152,6 @@ public class StreamFragment extends Fragment implements
         new GetLocationTask().execute(lat, lon);
     }
 
-    static class ViewHolder{
-        TextView text;
-    }
 
     public class CustomListAdapter extends ArrayAdapter{
 
@@ -213,7 +210,7 @@ public class StreamFragment extends Fragment implements
                 JSONObject json = new JSONObject(s);
                 json = json.getJSONObject("response");
                 JSONArray venues = json.getJSONArray("venues");
-                for(int i = 0; i < venues.length(); i++){
+                for(int i = 1; i < venues.length(); i++){
                     JSONObject venObj = venues.getJSONObject(i);
                     String name = venObj.getString("name");
                     if(!adapterStrings.contains(name)) {

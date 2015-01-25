@@ -10,7 +10,10 @@
         parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
         <item name="background">@color/sex_red</item>
         <item name="backgroundStacked">@color/bitch_red</item>
-        <item name="android:backgroundSplit">@color/bitch_red</item>
+        <item name="android:icon">@drawable/logo</item>
     </style>
+
+
+
 
 </resources>

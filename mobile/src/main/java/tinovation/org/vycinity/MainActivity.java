@@ -19,6 +19,7 @@ public class MainActivity extends ActionBarActivity implements StreamFragment.On
     public static String myLocation = "T-Pumps";
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -29,8 +30,13 @@ public class MainActivity extends ActionBarActivity implements StreamFragment.On
         mTapAdapter = new TabAdapter(this.getSupportFragmentManager());
         mViewPager.setAdapter(mTapAdapter);
 
-        //set up action bar tabs
+//        //set up action bar tabs
         final ActionBar actionBar = this.getSupportActionBar();
+//        SpannableString s = new SpannableString("My title");
+//        s.setSpan(new TypefaceSpan(),0,s.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+//        actionBar.setTitle(s);
+
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 
@@ -39,6 +45,7 @@ public class MainActivity extends ActionBarActivity implements StreamFragment.On
             public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
                 // show the given tab
                 mViewPager.setCurrentItem(tab.getPosition());
+
             }
 
             public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
@@ -50,13 +57,8 @@ public class MainActivity extends ActionBarActivity implements StreamFragment.On
             }
         };
 
-        // Add 3 tabs, specifying the tab's text and TabListener
-        for (int i = 0; i < TabAdapter.TAB_COUNT; i++) {
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText("Tab " + (i + 1))
-                            .setTabListener(tabListener));
-        }
+        actionBar.addTab(actionBar.newTab().setText("Nearby").setTabListener(tabListener));
+        actionBar.addTab(actionBar.newTab().setText("Stream").setTabListener(tabListener));
 
         mViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 
@@ -73,7 +75,10 @@ public class MainActivity extends ActionBarActivity implements StreamFragment.On
             @Override
             public void onPageScrollStateChanged(int state) {
 
+
+
             }
+
 
         });
 
@@ -84,6 +89,7 @@ public class MainActivity extends ActionBarActivity implements StreamFragment.On
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
         return true;
     }
 
@@ -104,7 +110,9 @@ public class MainActivity extends ActionBarActivity implements StreamFragment.On
 
     @Override
     public void onLocationChanged(String newLocation) {
-        myLocation = newLocation;
+//        Fragment pf = getSupportFragmentManager().findFragmentById(R.id.test);
+//        TextView v = (TextView) pf.getView().findViewById(R.id.current_place_text);
+//        v.setText(newLocation);
     }
 
     public class TabAdapter extends FragmentPagerAdapter{
