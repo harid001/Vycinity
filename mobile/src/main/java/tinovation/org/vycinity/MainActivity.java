@@ -1,5 +1,6 @@
 package tinovation.org.vycinity;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -11,6 +12,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import uk.co.chrisjenx.calligraphy.CalligraphyContextWrapper;
+
 // rahul test 1 12:40PM
 public class MainActivity extends ActionBarActivity {
 
@@ -21,6 +24,7 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
         // set up view pager and fragment adapter
@@ -123,5 +127,10 @@ public class MainActivity extends ActionBarActivity {
         public int getCount() {
             return TAB_COUNT;
         }
+    }
+
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(CalligraphyContextWrapper.wrap(newBase));
     }
 }
