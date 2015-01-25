@@ -3,7 +3,8 @@
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="15dp"
-    android:paddingBottom="15dp">
+    android:paddingBottom="15dp"
+    android:background="@color/bitch_red">
 
 
     <LinearLayout
@@ -20,12 +21,14 @@
             android:text="@string/data_description"
             android:id="@+id/data_description"
             android:layout_marginBottom="5dp"
+            android:textColor="#FFFFFF"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/data_content"
+            android:textColor="#FFFFFF"
             android:id="@+id/data_content" />
 
     </LinearLayout>

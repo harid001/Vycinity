@@ -1,7 +1,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/bitch_red">
 
     <TextView
         android:layout_width="wrap_content"
@@ -9,7 +10,8 @@
         android:text="@string/current_location"
         android:layout_marginTop="10dp"
         android:layout_gravity="center"
-        android:id="@+id/textView" />
+        android:id="@+id/textView"
+        android:textColor="#FFFFFF"/>
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -22,7 +24,8 @@
             android:layout_gravity="center"
             android:textSize="50sp"
             android:text="T-Pumps"
-            android:id="@+id/textView2" />
+            android:id="@+id/textView2"
+            android:textColor="#FFFFFF"/>
 
     </FrameLayout>
 
