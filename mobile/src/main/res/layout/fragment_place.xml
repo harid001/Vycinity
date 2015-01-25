@@ -2,7 +2,6 @@
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:ignore="MissingPrefix"
     android:background="@color/bitch_red">
 
     <TextView
@@ -12,9 +11,7 @@
         android:layout_marginTop="10dp"
         android:layout_gravity="center"
         android:id="@+id/textView"
-        android:fontFamily="Menlo"
-        android:textColor="#FFFFFF"
-        />
+        android:textColor="#FFFFFF"/>
 
     <FrameLayout
         android:layout_width="match_parent"
