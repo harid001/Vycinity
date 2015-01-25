@@ -6,29 +6,23 @@
 package tinovation.org.vycinity;
 
 
-import android.content.Context;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-
-import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -36,16 +30,16 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by rahul_000 on 1/24/2015.
  */
-public class StreamFragment extends Fragment {
+public class StreamFragment extends Fragment implements
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private ArrayAdapter<String> mLocationAdapter;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationRequest mLocationRequest;
 
 
     public StreamFragment() {
@@ -54,34 +48,8 @@ public class StreamFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Add this line in order for this fragment to handle menu events.
-
-        // Get the location manager
-        LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-        // Define the criteria how to select the locatioin provider -> use
-        // default
-        Criteria criteria = new Criteria();
-        String provider = locationManager.getBestProvider(criteria, false);
-        locationManager.requestLocationUpdates(provider,provider);
-        Location location = locationManager.getLastKnownLocation(provider);
-
-        setHasOptionsMenu(true);
-
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.stream_fragment, menu);
-    }
-
-    @Override
-    public void onStart() {
-
-
-
-        GetLocationTask locationTask = new GetLocationTask();
-        locationTask.execute("37.485", "-122.0200");
-        Log.v("test", "test");
+        createLocationRequest();
+        buildGoogleApiClient();
     }
 
     @Override
@@ -90,10 +58,6 @@ public class StreamFragment extends Fragment {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_refresh) {
-
-            return true;
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -102,10 +66,53 @@ public class StreamFragment extends Fragment {
                              Bundle savedInstanceState) {
 
 
-        View rootView = inflater.inflate(R.layout.fragment_place, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_stream, container, false);
 
         return rootView;
     }
+
+    protected synchronized void buildGoogleApiClient() {
+        mGoogleApiClient = new GoogleApiClient.Builder(getActivity())
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        mGoogleApiClient.connect();
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+       // mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(
+                //mGoogleApiClient);
+        //Log.v("location", String.valueOf(mCurrentLocation.getLatitude()));
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        Log.v("lat", String.valueOf(location.getLatitude()));
+        Log.v("long", String.valueOf(location.getLongitude()));
+    }
+
 
     public class GetLocationTask extends AsyncTask<String, Void, String[]> {
         @Override
@@ -117,33 +124,34 @@ public class StreamFragment extends Fragment {
             BufferedReader reader = null;
 
             // Will contain the raw JSON response as a string.
-            String forecastJsonStr = null;
+            String result = null;
 
-            String format = "json";
-            String units = "metric";
-            int numDays = 7;
 
             try {
-                // Construct the URL for the OpenWeatherMap query
-                // Possible parameters are avaiable at OWM's forecast API page, at
-                // http://openweathermap.org/API#forecast
+
                 final String FORECAST_BASE_URL =
-                        "https://api.foursquare.com/v2/venues/explore?";
+                        "https://api.foursquare.com/v2/venues/search?";
                 final String LAT_LON = "ll";
                 final String RADIUS = "radius";
-                final String SECTION = "section";
-                final String OAUTH_TOKEN = "oauth_token";
+                final String CATEGORY_ID = "categoryId";
+                final String CLIENT_ID = "client_id";
+                final String CLIENT_SECRET = "client_secret";
+                final String VERSION = "v";
+                final String STYLE = "m";
 
                 Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(LAT_LON, params[0] + params[1])
-                        .appendQueryParameter(RADIUS, "2")
-                        .appendQueryParameter(SECTION, "food")
-                        .appendQueryParameter(OAUTH_TOKEN, "RWUD2MQ2OIX2P5E5IJBMBQKHDGMOGFE5CMSFCLHDKATCOCR2")
+                        .appendQueryParameter(LAT_LON, params[0] + "," + params[1])
+                        .appendQueryParameter(RADIUS, "1000")
+                        .appendQueryParameter(CATEGORY_ID, "4d4b7105d754a06374d81259")
+                        .appendQueryParameter(CLIENT_ID, "RWUD2MQ2OIX2P5E5IJBMBQKHDGMOGFE5CMSFCLHDKATCOCR2")
+                        .appendQueryParameter(CLIENT_SECRET, "JJOZSJ2G4SKI3KO0D0GXQL4DOAD2QZ2YYPCFRX0RTFEIPQGI")
+                        .appendQueryParameter(VERSION,"20140806")
+                        .appendQueryParameter(STYLE,"foursquare")
                         .build();
 
                 URL url = new URL(builtUri.toString());
 
-                Log.v("botcj", "Built URI " + builtUri.toString());
+                Log.v(StreamFragment.class.getSimpleName(), "Built URI " + builtUri.toString());
 
 
                 // Create the request to OpenWeatherMap, and open the connection
@@ -172,9 +180,9 @@ public class StreamFragment extends Fragment {
                     // Stream was empty.  No point in parsing.
                     return null;
                 }
-                forecastJsonStr = buffer.toString();
+                result = buffer.toString();
 
-                Log.v(StreamFragment.class.getSimpleName(), "Forecast string: " + forecastJsonStr);
+                Log.v(StreamFragment.class.getSimpleName(), "Forecast string: " + result);
             } catch (IOException e) {
                 //Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
