@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="15dp">
+    android:paddingTop="15dp"
+    android:paddingBottom="15dp">
 
 
     <LinearLayout
@@ -18,7 +19,8 @@
             android:layout_height="wrap_content"
             android:text="@string/data_description"
             android:id="@+id/data_description"
-            android:textSize="@dimen/abc_text_size_display_1_material"/>
+            android:layout_marginBottom="5dp"
+            android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         <TextView
             android:layout_width="wrap_content"
