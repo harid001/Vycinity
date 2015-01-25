@@ -9,6 +9,7 @@ package tinovation.org.vycinity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -100,7 +101,7 @@ public class StreamFragment extends Fragment implements
 
                 TextView tv = (TextView)(view.findViewById(R.id.place_title));
                 Log.v("test", (String) tv.getText());
-                intent.putExtra("name", (String)tv.getText());
+                intent.putExtra("name", (String) tv.getText());
                 intent.putExtra("location",mapOfLocations.get(tv.getText()));
                 startActivity(intent);
             }
@@ -151,6 +152,10 @@ public class StreamFragment extends Fragment implements
         new GetLocationTask().execute(lat, lon);
     }
 
+    static class ViewHolder{
+        TextView text;
+    }
+
     public class CustomListAdapter extends ArrayAdapter{
 
         public CustomListAdapter(Context context, int resource) {
@@ -160,15 +165,21 @@ public class StreamFragment extends Fragment implements
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
+
             LayoutInflater inflater = getActivity().getLayoutInflater();
+            Typeface regular = Typeface.createFromAsset(getActivity().getAssets(),
+                    "RobotoCondensed-Regular.ttf");
             View vi = convertView;
             if (vi == null) {
                 vi = inflater.inflate(R.layout.place_item,null);
                 TextView title = (TextView) vi.findViewById(R.id.place_title);
-
+                title.setTypeface(regular);
                 title.setText((String)getItem(position));
 
             }
+            TextView title = (TextView) vi.findViewById(R.id.place_title);
+            title.setTypeface(regular);
+            title.setText((String)getItem(position));
             return vi;
         }
 
@@ -205,8 +216,10 @@ public class StreamFragment extends Fragment implements
                 for(int i = 0; i < venues.length(); i++){
                     JSONObject venObj = venues.getJSONObject(i);
                     String name = venObj.getString("name");
-                    adapterStrings.add(name);
-                    mapOfLocations.put(name,venObj.getJSONObject("location").getString("lat") + "," + venObj.getJSONObject("location").getString("lng"));
+                    if(!adapterStrings.contains(name)) {
+                        adapterStrings.add(name);
+                        mapOfLocations.put(name, venObj.getJSONObject("location").getString("lat") + "," + venObj.getJSONObject("location").getString("lng"));
+                    }
                 }
 
 
@@ -214,7 +227,7 @@ public class StreamFragment extends Fragment implements
                 for(String test : adapterStrings){
                     mLocationAdapter.add(test);
                 }
-                mLocationAdapter.notifyDataSetChanged();
+                //mLocationAdapter.notifyDataSetChanged();
                 //Log.v("test", (String) mLocationAdapter.getItem(0));
                 mLocationListener.onLocationChanged((String) mLocationAdapter.getItem(0));
 
@@ -260,9 +273,6 @@ public class StreamFragment extends Fragment implements
                         .build();
 
                 URL url = new URL(builtUri.toString());
-
-                Log.v(StreamFragment.class.getSimpleName(), "Built URI " + builtUri.toString());
-
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
