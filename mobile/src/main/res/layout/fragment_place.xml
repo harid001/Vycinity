@@ -23,7 +23,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textSize="50sp"
+            android:textSize="30sp"
+            android:text=""
             android:id="@+id/current_place_text"
             android:textColor="#FFFFFF"/>
 

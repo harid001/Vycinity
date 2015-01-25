@@ -7,7 +7,9 @@ package tinovation.org.vycinity;
 
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.location.Location;
@@ -55,6 +57,7 @@ public class StreamFragment extends Fragment implements
     private CustomListAdapter mLocationAdapter;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private String currentCategory = "4d4b7105d754a06374d81259";
     HashMap<String,String> mapOfLocations;
     OnLocationChangedListener mLocationListener;
 
@@ -76,6 +79,28 @@ public class StreamFragment extends Fragment implements
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        if(id == R.id.action_filter){
+
+            final HashMap<String,String> categories = new HashMap<String,String>();
+
+            categories.put("Arts and Entertainment", "4d4b7104d754a06370d81259");
+            categories.put("Food","4d4b7105d754a06374d81259");
+            categories.put("Nightlife", "4d4b7105d754a06376d81259");
+            categories.put("Outdoors","4d4b7105d754a06377d81259");
+            categories.put("All","");
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this.getActivity());
+            builder.setItems(new CharSequence[]{"Arts and Entertainment", "Food", "Nightlife", "Outdoors"}, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            currentCategory = categories.get(new CharSequence[]{"Arts and Entertainment", "Food", "Nightlife", "Outdoors"}[which]);
+
+                        }
+                    });
+
+            builder.show();
+
+        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -259,15 +284,31 @@ public class StreamFragment extends Fragment implements
                 final String VERSION = "v";
                 final String STYLE = "m";
 
-                Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                        .appendQueryParameter(LAT_LON, params[0] + "," + params[1])
-                        .appendQueryParameter(RADIUS, "1000")
-                        .appendQueryParameter(CATEGORY_ID, "4d4b7105d754a06374d81259")
-                        .appendQueryParameter(CLIENT_ID, "RWUD2MQ2OIX2P5E5IJBMBQKHDGMOGFE5CMSFCLHDKATCOCR2")
-                        .appendQueryParameter(CLIENT_SECRET, "JJOZSJ2G4SKI3KO0D0GXQL4DOAD2QZ2YYPCFRX0RTFEIPQGI")
-                        .appendQueryParameter(VERSION,"20140806")
-                        .appendQueryParameter(STYLE,"foursquare")
-                        .build();
+                Uri builtUri = null;
+
+                if(currentCategory.length() > 0){
+                    builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                            .appendQueryParameter(LAT_LON, params[0] + "," + params[1])
+                            .appendQueryParameter(RADIUS, "1000")
+                            .appendQueryParameter(CATEGORY_ID, currentCategory)
+                            .appendQueryParameter(CLIENT_ID, "RWUD2MQ2OIX2P5E5IJBMBQKHDGMOGFE5CMSFCLHDKATCOCR2")
+                            .appendQueryParameter(CLIENT_SECRET, "JJOZSJ2G4SKI3KO0D0GXQL4DOAD2QZ2YYPCFRX0RTFEIPQGI")
+                            .appendQueryParameter(VERSION,"20140806")
+                            .appendQueryParameter(STYLE,"foursquare")
+                            .build();
+                }
+                else{
+                    builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                            .appendQueryParameter(LAT_LON, params[0] + "," + params[1])
+                            .appendQueryParameter(RADIUS, "1000")
+                            .appendQueryParameter(CLIENT_ID, "RWUD2MQ2OIX2P5E5IJBMBQKHDGMOGFE5CMSFCLHDKATCOCR2")
+                            .appendQueryParameter(CLIENT_SECRET, "JJOZSJ2G4SKI3KO0D0GXQL4DOAD2QZ2YYPCFRX0RTFEIPQGI")
+                            .appendQueryParameter(VERSION,"20140806")
+                            .appendQueryParameter(STYLE,"foursquare")
+                            .build();
+                }
+
+
 
                 URL url = new URL(builtUri.toString());
 
