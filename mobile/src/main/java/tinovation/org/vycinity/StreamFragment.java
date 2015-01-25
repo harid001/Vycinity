@@ -8,6 +8,7 @@ package tinovation.org.vycinity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -95,7 +96,13 @@ public class StreamFragment extends Fragment implements
         v.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(),InformationActivity.class);
 
+                TextView tv = (TextView)(view.findViewById(R.id.place_title));
+                Log.v("test", (String) tv.getText());
+                intent.putExtra("name", (String)tv.getText());
+                intent.putExtra("location",mapOfLocations.get(tv.getText()));
+                startActivity(intent);
             }
         });
         return rootView;
