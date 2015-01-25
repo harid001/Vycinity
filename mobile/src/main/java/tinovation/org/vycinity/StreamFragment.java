@@ -6,6 +6,8 @@
 package tinovation.org.vycinity;
 
 
+import android.app.Activity;
+import android.content.Context;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,8 +20,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -38,9 +42,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
 /**
  * Created by rahul_000 on 1/24/2015.
@@ -48,10 +50,11 @@ import java.util.List;
 public class StreamFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private ArrayAdapter<String> mLocationAdapter;
+    private CustomListAdapter mLocationAdapter;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
     HashMap<String,String> mapOfLocations;
+    OnLocationChangedListener mLocationListener;
 
 
     public StreamFragment() {
@@ -87,10 +90,14 @@ public class StreamFragment extends Fragment implements
 
         View rootView = inflater.inflate(R.layout.fragment_stream, container, false);
         ListView v = (ListView) rootView.findViewById(R.id.stream_list);
-        List<String> test = Arrays.asList(new String[]{"test","test","test","test","test","test","test","test","test"});
-        mLocationAdapter = new ArrayAdapter<String>(getActivity(),R.layout.stream_item,R.id.textView3);
-        mLocationAdapter.addAll(test);
+        mLocationAdapter = new CustomListAdapter(getActivity(),R.layout.place_item);
         v.setAdapter(mLocationAdapter);
+        v.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+            }
+        });
         return rootView;
     }
 
@@ -137,12 +144,51 @@ public class StreamFragment extends Fragment implements
         new GetLocationTask().execute(lat, lon);
     }
 
+    public class CustomListAdapter extends ArrayAdapter{
+
+        public CustomListAdapter(Context context, int resource) {
+            super(context, resource);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View vi = convertView;
+            if (vi == null) {
+                vi = inflater.inflate(R.layout.place_item,null);
+                TextView title = (TextView) vi.findViewById(R.id.place_title);
+
+                title.setText((String)getItem(position));
+
+            }
+            return vi;
+        }
+
+
+    }
+
+    public interface OnLocationChangedListener{
+        public void onLocationChanged(String newLocation);
+    }
+
+    public void onAttach(Activity activity){
+        super.onAttach(activity);
+        try{
+            mLocationListener = (OnLocationChangedListener)activity;
+        }catch(ClassCastException e){
+            throw new ClassCastException(activity.toString() + "must implement onLocationChanged()");
+
+        }
+
+    }
+
 
     public class GetLocationTask extends AsyncTask<String, Void, String> {
 
         @Override
         protected void onPostExecute(String s) {
-            try {
+           try {
                 ArrayList<String> adapterStrings = new ArrayList<String>();
                 mapOfLocations = new HashMap<String,String>();
 
@@ -156,14 +202,17 @@ public class StreamFragment extends Fragment implements
                     mapOfLocations.put(name,venObj.getJSONObject("location").getString("lat") + "," + venObj.getJSONObject("location").getString("lng"));
                 }
 
+
                 mLocationAdapter.clear();
                 for(String test : adapterStrings){
                     mLocationAdapter.add(test);
                 }
                 mLocationAdapter.notifyDataSetChanged();
+                //Log.v("test", (String) mLocationAdapter.getItem(0));
+                mLocationListener.onLocationChanged((String) mLocationAdapter.getItem(0));
 
 
-            } catch (JSONException e) {
+           } catch (JSONException e) {
                 e.printStackTrace();
             }
 

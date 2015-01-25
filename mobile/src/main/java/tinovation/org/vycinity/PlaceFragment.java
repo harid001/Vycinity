@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,10 +19,11 @@ import android.widget.TextView;
 /**
  * A placeholder fragment containing a simple view.
  */
-public class PlaceFragment extends Fragment {
+public class PlaceFragment extends Fragment  {
 
     public PlaceFragment() {
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,6 +38,10 @@ public class PlaceFragment extends Fragment {
 
         TextView mini_location = (TextView) rootView.findViewById(R.id.current_location_text);
         TextView large_location = (TextView) rootView.findViewById(R.id.current_place_text);
+
+        large_location.setText(MainActivity.myLocation);
+
+        Log.v("hello","hello");
 
 
 
