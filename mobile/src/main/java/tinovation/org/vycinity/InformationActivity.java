@@ -82,13 +82,18 @@ public class InformationActivity extends ActionBarActivity {
                                  Bundle savedInstanceState) {
             View rootView = inflater.inflate(R.layout.fragment_information, container, false);
             ListView li = (ListView) rootView.findViewById(R.id.information_list);
-            mInformationAdapter = new CustomListAdapter(getActivity(),R.layout.place_item);
+            mInformationAdapter = new CustomListAdapter(getActivity(),R.layout.deal_item);
             li.setAdapter(mInformationAdapter);
             Intent i = getActivity().getIntent();
             Log.v("location",i.getExtras().getString("location"));
             new GetInformation().execute(i.getExtras().getString("location"));
             return rootView;
         }
+    }
+
+    static class ViewHolder{
+        TextView title;
+        TextView description;
     }
 
     public class CustomListAdapter extends ArrayAdapter {
@@ -100,15 +105,31 @@ public class InformationActivity extends ActionBarActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 
+            ViewHolder holder = null;
             LayoutInflater inflater = getLayoutInflater();
             View vi = convertView;
             if (vi == null) {
-                vi = inflater.inflate(R.layout.place_item,null);
-                TextView title = (TextView) vi.findViewById(R.id.place_title);
-
-                title.setText((String)getItem(position));
+                vi = inflater.inflate(R.layout.deal_item,null);
+                Deal deal = (Deal)getItem(position);
+                //holder = new ViewHolder();
+                TextView title = (TextView) vi.findViewById(R.id.deal_title);
+                title.setText(deal.getTitle());
+                TextView descrip = (TextView) vi.findViewById(R.id.deal_description);
+                descrip.setText(deal.getDescription());
+//                holder.title = title;
+//                holder.description = descrip;
+//                vi.setTag(holder);
 
             }
+            //holder = (ViewHolder)vi.getTag();
+            Deal deal = (Deal)getItem(position);
+            TextView title = (TextView) vi.findViewById(R.id.deal_title);
+            title.setText(deal.getTitle());
+            TextView descrip = (TextView) vi.findViewById(R.id.deal_description);
+            descrip.setText(deal.getDescription());
+//            holder.title = (TextView) vi.findViewById(R.id.deal_title);
+//            holder.description = (TextView) vi.findViewById(R.id.deal_description);
+
             return vi;
         }
 
@@ -120,7 +141,7 @@ public class InformationActivity extends ActionBarActivity {
         @Override
         protected void onPostExecute(String s) {
             try {
-                ArrayList<String> adapterStrings = new ArrayList<String>();
+                ArrayList<Deal> adapterStrings = new ArrayList<Deal>();
 
                 JSONObject json = new JSONObject(s);
 
@@ -128,18 +149,18 @@ public class InformationActivity extends ActionBarActivity {
                 for(int i = 0; i < deals.length(); i++){
                     JSONObject venObj = deals.getJSONObject(i);
                     venObj = venObj.getJSONObject("deal");
-                    String name = venObj.getString("title");
-                    adapterStrings.add(name);
+                    String descript = venObj.getString("title");
+                    venObj = venObj.getJSONObject("merchant");
+                    String title = venObj.getString("name");
+                    adapterStrings.add(new Deal(title,descript));
                 }
-
-                Log.v("shit",adapterStrings.toString());
 
 
                 mInformationAdapter.clear();
-                for(String test : adapterStrings){
+                for(Deal test : adapterStrings){
                     mInformationAdapter.add(test);
                 }
-                mInformationAdapter.notifyDataSetChanged();
+                //mInformationAdapter.notifyDataSetChanged();
 
 
             } catch (JSONException e) {
