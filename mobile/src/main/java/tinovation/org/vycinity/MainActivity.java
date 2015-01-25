@@ -10,12 +10,21 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.NodeApi;
+import android.util.*;
+import com.google.android.gms.wearable.Wearable;
+import com.google.android.gms.common.api.GoogleApiClient.*;
 
 // rahul test 1 12:40PM
 public class MainActivity extends ActionBarActivity {
 
     private ViewPager mViewPager;
     private TabAdapter mTapAdapter;
+    GoogleApiClient mGoogleApiClient;
 
 
     @Override
@@ -30,6 +39,7 @@ public class MainActivity extends ActionBarActivity {
 
         //set up action bar tabs
         final ActionBar actionBar = this.getSupportActionBar();
+        final String TAG = "YOUR-TAG-NAME";
         actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
 
@@ -76,7 +86,41 @@ public class MainActivity extends ActionBarActivity {
 
         });
 
+         mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(new ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle connectionHint) {
+                        Log.d(TAG, "onConnected: " + connectionHint);
+                        // Now you can use the Data Layer API
+                    }
+                    @Override
+                    public void onConnectionSuspended(int cause) {
+                        Log.d(TAG, "onConnectionSuspended: " + cause);
+                    }
+                })
+                .addOnConnectionFailedListener(new OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult result) {
+                        Log.d(TAG, "onConnectionFailed: " + result);
+                    }
+                })
+                        // Request access only to the Wearable API
+                .addApi(Wearable.API)
+                .build();
 
+
+
+
+    }
+
+    @Override
+    protected void onStart(){
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onStop(){
+        mGoogleApiClient.disconnect();
     }
 
     @Override
