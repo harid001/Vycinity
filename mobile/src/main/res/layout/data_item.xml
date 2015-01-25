@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:paddingTop="15dp"
     android:paddingBottom="15dp"
-    android:background="@color/bitch_red">
+    android:background="@color/period_red">
 
 
     <LinearLayout

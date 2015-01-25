@@ -5,6 +5,7 @@ package tinovation.org.vycinity;
  */
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -31,6 +33,15 @@ public class PlaceFragment extends Fragment {
 
         ListView v = (ListView) rootView.findViewById(R.id.data_list);
         v.setAdapter(test);
+
+        TextView text = (TextView) rootView.findViewById(R.id.current_location_text);
+        TextView otherText = (TextView) rootView.findViewById(R.id.current_place_text);
+
+        Typeface face=Typeface.createFromAsset(getActivity().getAssets(),
+                "RobotoCondensed-Bold.ttf");
+
+        text.setTypeface(face);
+        otherText.setTypeface(face);
 
         return rootView;
     }
