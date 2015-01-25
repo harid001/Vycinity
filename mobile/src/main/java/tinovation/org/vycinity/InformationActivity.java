@@ -1,11 +1,14 @@
 package tinovation.org.vycinity;
 
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,7 +31,6 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-
 
 public class InformationActivity extends ActionBarActivity {
 
@@ -140,8 +142,9 @@ public class InformationActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(String s) {
+            ArrayList<Deal> adapterStrings = null;
             try {
-                ArrayList<Deal> adapterStrings = new ArrayList<Deal>();
+                adapterStrings = new ArrayList<Deal>();
 
                 JSONObject json = new JSONObject(s);
 
@@ -166,6 +169,29 @@ public class InformationActivity extends ActionBarActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            // send wear notification
+            int notificationId = 001;
+            // Build intent for notification content
+            Intent viewIntent = new Intent(getApplicationContext(), InformationActivity.class);
+            viewIntent.putExtra("deals", new Bundle());
+            PendingIntent viewPendingIntent =
+                    PendingIntent.getActivity(getApplicationContext(), 0, viewIntent, 0);
+
+            NotificationCompat.Builder notificationBuilder =
+                    new NotificationCompat.Builder(getApplicationContext())
+                            .setSmallIcon(R.drawable.notification_icon)
+                            .setContentTitle(adapterStrings.get(0).getTitle())
+                            .setContentText(adapterStrings.get(0).getDescription())
+                            .setContentIntent(viewPendingIntent);
+
+            // Get an instance of the NotificationManager service
+            NotificationManagerCompat notificationManager =
+                    NotificationManagerCompat.from(getApplicationContext());
+
+            // Build the notification and issues it with notification manager.
+            notificationManager.notify(notificationId, notificationBuilder.build());
+
 
         }
 
@@ -251,7 +277,7 @@ public class InformationActivity extends ActionBarActivity {
                 }
             }
 
-            Log.v("test",result);
+
             return result;
         }
     }
