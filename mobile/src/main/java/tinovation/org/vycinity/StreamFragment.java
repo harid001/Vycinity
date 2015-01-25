@@ -17,6 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,12 +25,20 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by rahul_000 on 1/24/2015.
@@ -40,6 +49,7 @@ public class StreamFragment extends Fragment implements
     private ArrayAdapter<String> mLocationAdapter;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    HashMap<String,String> mapOfLocations;
 
 
     public StreamFragment() {
@@ -67,7 +77,11 @@ public class StreamFragment extends Fragment implements
 
 
         View rootView = inflater.inflate(R.layout.fragment_stream, container, false);
-
+        ListView v = (ListView) rootView.findViewById(R.id.stream_list);
+        List<String> test = Arrays.asList(new String[]{"test","test","test","test","test","test","test","test","test"});
+        mLocationAdapter = new ArrayAdapter<String>(getActivity(),R.layout.stream_item,R.id.textView3);
+        mLocationAdapter.addAll(test);
+        v.setAdapter(mLocationAdapter);
         return rootView;
     }
 
@@ -109,14 +123,45 @@ public class StreamFragment extends Fragment implements
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.v("lat", String.valueOf(location.getLatitude()));
-        Log.v("long", String.valueOf(location.getLongitude()));
+        String lat = String.valueOf(location.getLatitude());
+        String lon = String.valueOf(location.getLongitude());
+        new GetLocationTask().execute(lat, lon);
     }
 
 
-    public class GetLocationTask extends AsyncTask<String, Void, String[]> {
+    public class GetLocationTask extends AsyncTask<String, Void, String> {
+
         @Override
-        protected String[] doInBackground(String... params) {
+        protected void onPostExecute(String s) {
+            try {
+                ArrayList<String> adapterStrings = new ArrayList<String>();
+                mapOfLocations = new HashMap<String,String>();
+
+                JSONObject json = new JSONObject(s);
+                json = json.getJSONObject("response");
+                JSONArray venues = json.getJSONArray("venues");
+                for(int i = 0; i < venues.length(); i++){
+                    JSONObject venObj = venues.getJSONObject(i);
+                    String name = venObj.getString("name");
+                    adapterStrings.add(name);
+                    mapOfLocations.put(name,venObj.getJSONObject("location").getString("lat") + "," + venObj.getJSONObject("location").getString("lng"));
+                }
+
+                mLocationAdapter.clear();
+                for(String test : adapterStrings){
+                    mLocationAdapter.add(test);
+                }
+                mLocationAdapter.notifyDataSetChanged();
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
 
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -182,7 +227,7 @@ public class StreamFragment extends Fragment implements
                 }
                 result = buffer.toString();
 
-                Log.v(StreamFragment.class.getSimpleName(), "Forecast string: " + result);
+                Log.v(StreamFragment.class.getSimpleName(), result);
             } catch (IOException e) {
                 //Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -201,7 +246,7 @@ public class StreamFragment extends Fragment implements
                 }
             }
 
-            return new String[0];
+            return result;
         }
     }
 
