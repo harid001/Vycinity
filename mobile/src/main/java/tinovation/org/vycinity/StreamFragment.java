@@ -6,6 +6,9 @@
 package tinovation.org.vycinity;
 
 
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -13,10 +16,15 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -24,12 +32,18 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by rahul_000 on 1/24/2015.
@@ -37,9 +51,11 @@ import java.net.URL;
 public class StreamFragment extends Fragment implements
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
-    private ArrayAdapter<String> mLocationAdapter;
+    private CustomListAdapter mLocationAdapter;
     private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    HashMap<String,String> mapOfLocations;
+    OnLocationChangedListener mLocationListener;
 
 
     public StreamFragment() {
@@ -50,6 +66,7 @@ public class StreamFragment extends Fragment implements
         super.onCreate(savedInstanceState);
         createLocationRequest();
         buildGoogleApiClient();
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -62,12 +79,32 @@ public class StreamFragment extends Fragment implements
     }
 
     @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.filter_menu_item,menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
 
         View rootView = inflater.inflate(R.layout.fragment_stream, container, false);
+        ListView v = (ListView) rootView.findViewById(R.id.stream_list);
+        mLocationAdapter = new CustomListAdapter(getActivity(),R.layout.place_item);
+        v.setAdapter(mLocationAdapter);
+        v.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(),InformationActivity.class);
 
+                TextView tv = (TextView)(view.findViewById(R.id.place_title));
+                Log.v("test", (String) tv.getText());
+                intent.putExtra("name", (String)tv.getText());
+                intent.putExtra("location",mapOfLocations.get(tv.getText()));
+                startActivity(intent);
+            }
+        });
         return rootView;
     }
 
@@ -109,14 +146,87 @@ public class StreamFragment extends Fragment implements
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.v("lat", String.valueOf(location.getLatitude()));
-        Log.v("long", String.valueOf(location.getLongitude()));
+        String lat = String.valueOf(location.getLatitude());
+        String lon = String.valueOf(location.getLongitude());
+        new GetLocationTask().execute(lat, lon);
+    }
+
+    public class CustomListAdapter extends ArrayAdapter{
+
+        public CustomListAdapter(Context context, int resource) {
+            super(context, resource);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            LayoutInflater inflater = getActivity().getLayoutInflater();
+            View vi = convertView;
+            if (vi == null) {
+                vi = inflater.inflate(R.layout.place_item,null);
+                TextView title = (TextView) vi.findViewById(R.id.place_title);
+
+                title.setText((String)getItem(position));
+
+            }
+            return vi;
+        }
+
+
+    }
+
+    public interface OnLocationChangedListener{
+        public void onLocationChanged(String newLocation);
+    }
+
+    public void onAttach(Activity activity){
+        super.onAttach(activity);
+        try{
+            mLocationListener = (OnLocationChangedListener)activity;
+        }catch(ClassCastException e){
+            throw new ClassCastException(activity.toString() + "must implement onLocationChanged()");
+
+        }
+
     }
 
 
-    public class GetLocationTask extends AsyncTask<String, Void, String[]> {
+    public class GetLocationTask extends AsyncTask<String, Void, String> {
+
         @Override
-        protected String[] doInBackground(String... params) {
+        protected void onPostExecute(String s) {
+           try {
+                ArrayList<String> adapterStrings = new ArrayList<String>();
+                mapOfLocations = new HashMap<String,String>();
+
+                JSONObject json = new JSONObject(s);
+                json = json.getJSONObject("response");
+                JSONArray venues = json.getJSONArray("venues");
+                for(int i = 0; i < venues.length(); i++){
+                    JSONObject venObj = venues.getJSONObject(i);
+                    String name = venObj.getString("name");
+                    adapterStrings.add(name);
+                    mapOfLocations.put(name,venObj.getJSONObject("location").getString("lat") + "," + venObj.getJSONObject("location").getString("lng"));
+                }
+
+
+                mLocationAdapter.clear();
+                for(String test : adapterStrings){
+                    mLocationAdapter.add(test);
+                }
+                mLocationAdapter.notifyDataSetChanged();
+                //Log.v("test", (String) mLocationAdapter.getItem(0));
+                mLocationListener.onLocationChanged((String) mLocationAdapter.getItem(0));
+
+
+           } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
 
             // These two need to be declared outside the try/catch
             // so that they can be closed in the finally block.
@@ -182,7 +292,7 @@ public class StreamFragment extends Fragment implements
                 }
                 result = buffer.toString();
 
-                Log.v(StreamFragment.class.getSimpleName(), "Forecast string: " + result);
+                Log.v(StreamFragment.class.getSimpleName(), result);
             } catch (IOException e) {
                 //Log.e(LOG_TAG, "Error ", e);
                 // If the code didn't successfully get the weather data, there's no point in attemping
@@ -201,7 +311,7 @@ public class StreamFragment extends Fragment implements
                 }
             }
 
-            return new String[0];
+            return result;
         }
     }
 

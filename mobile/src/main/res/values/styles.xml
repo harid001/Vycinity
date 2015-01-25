@@ -8,7 +8,9 @@
 
     <style name="ActionBar.Solid.Vicynity"
         parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/sexy_orange</item>
+        <item name="background">@color/sex_red</item>
+        <item name="backgroundStacked">@color/bitch_red</item>
+        <item name="android:backgroundSplit">@color/bitch_red</item>
     </style>
 
 </resources>
